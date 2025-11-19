@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: product_importer
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  web:
+    build:
+      context: .        
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app       
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=product_importer.settings
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/product_importer
+
+  worker:
+    build:
+      context: .        # FIXED
+    command: celery -A product_importer worker --loglevel=info -Q default
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=product_importer.settings
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/product_importer
+
+  beat:
+    build:
+      context: .        # FIXED
+    command: celery -A product_importer beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+      - redis
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=product_importer.settings
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/product_importer
+
+volumes:
+  postgres_data:

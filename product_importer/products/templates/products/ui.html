@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1>Acme — Product Importer</h1>
+
+<section>
+  <h2>1) Upload CSV</h2>
+
+  <input id="fileInput" type="file" accept=".csv" />
+  <button id="uploadBtn">Upload</button>
+
+  <div id="uploadStatus">
+    <div style="width:100%; background:#eee; height:22px; border-radius:4px;">
+      <div id="progressBar"></div>
+    </div>
+    <p id="statusText"></p>
+  </div>
+</section>
+
+<section>
+  <h2>2) Product Management</h2>
+
+  <div style="margin-bottom: 15px;">
+    <label>Filter SKU:
+      <input id="filterSku" />
+    </label>
+
+    <label>Filter Name:
+      <input id="filterName" />
+    </label>
+
+    <label>Active:
+      <select id="filterActive">
+        <option value="">Any</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+      </select>
+    </label>
+
+    <button id="applyFilters">Apply</button>
+    <button id="reloadList">Reload</button>
+
+    <button id="bulkDeleteBtn" style="float:right;">
+      Delete All Products
+    </button>
+  </div>
+
+  <div id="productsList"></div>
+</section>
+
+<section>
+  <h2>3) Webhooks</h2>
+
+  <button id="reloadWebhooks">Reload Webhooks</button>
+  <div id="webhooksList" style="margin-top:10px;"></div>
+</section>
+
+<script src="{% static 'products/ui.js' %}"></script>
+{% endblock %}
